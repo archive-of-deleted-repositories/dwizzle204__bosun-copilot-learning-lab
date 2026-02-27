@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Block accidental secret commits.
+staged_files="$(git diff --cached --name-only --diff-filter=ACM || true)"
+[ -z "$staged_files" ] && exit 0
+
+blocked='(^|/)(\.env(\..*)?|\.secrets.*|.*\.pem|id_rsa|id_ed25519|.*\.p12|.*\.key)$'
+
+if printf '%s\n' "$staged_files" | rg -n "$blocked" >/dev/null 2>&1; then
+  echo "[pre-commit] Blocked: secret-like files are staged."
+  echo "[pre-commit] Unstage them before commit, for example:"
+  echo "  git restore --staged .env .env.* .secrets*"
+  echo
+  echo "[pre-commit] Matching staged files:"
+  printf '%s\n' "$staged_files" | rg "$blocked" || true
+  exit 1
+fi
+
+exit 0

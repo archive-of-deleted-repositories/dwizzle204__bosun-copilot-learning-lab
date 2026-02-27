@@ -1,0 +1,15 @@
+[Unit]
+Description=Bosun Agent Supervisor
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/your-project
+EnvironmentFile=/home/ubuntu/your-project/.env
+ExecStart=/usr/bin/env bosun
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
